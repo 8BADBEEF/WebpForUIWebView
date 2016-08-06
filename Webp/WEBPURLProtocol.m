@@ -147,7 +147,7 @@ static id <WEBPURLProtocolDecoder> decoder = nil;
     }
     
     completionHandler(NSURLSessionResponseAllow);
-    [self p_didReceiveResponsefromCache:NO];
+    [self p_didReceiveResponsefromCache:NO expectedLength:response.expectedContentLength];
 }
 
 -(void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask
@@ -210,7 +210,7 @@ didCompleteWithError:(NSError *)error {
     [self.session invalidateAndCancel];
 }
 
-- (void)p_didReceiveResponsefromCache: (BOOL)fromCache {
+- (void)p_didReceiveResponsefromCache: (BOOL)fromCache expectedLength: (long long)expectedLength{
     NSString *contentType = @"image/png";
     NSDictionary * const responseHeaderFields = @{
                                                   @"Content-Type": contentType,
@@ -221,7 +221,11 @@ didCompleteWithError:(NSError *)error {
     NSHTTPURLResponse * const modifiedResponse = [[NSHTTPURLResponse alloc] initWithURL:request.URL statusCode:200 HTTPVersion:@"1.0" headerFields:responseHeaderFields];
     
     if (!fromCache) {
-        self.data = [[NSMutableData alloc] init];
+        if (expectedLength > 0) {
+            self.data = [[NSMutableData alloc] initWithCapacity:expectedLength];
+        } else {
+            self.data = [[NSMutableData alloc] initWithCapacity:50 * 1024];// Default to 50KB
+        }
     }
     [self p_performBlock:^{
         [self.client URLProtocol:self didReceiveResponse:modifiedResponse cacheStoragePolicy:NSURLCacheStorageAllowed];
