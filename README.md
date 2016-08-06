@@ -29,6 +29,9 @@ Behind the scene, the code that is responsible for intercepting WebP network tra
 
 A new NSURLSession instance is created for each incoming WebP request. This does seem rather wasteful. However, after much testing, it occurred that sharing a single NSURLSession instance across multiple NSURLProtocol requests would lead to random timeouts and loss of data. Until a solution is found, reusing NSURLSession is not recommended.
 
+#Compatibility
+Compatible with iOS 7.0 or above.
+
 
 #Example Project
 Inside this repo you can find the example project. 
